@@ -1,0 +1,690 @@
+/* ============================================================
+   AGED STOCK — cracks, wrinkles, foxing, wear, botanicals
+   Imported by styles.css.
+
+   Every utility here is decorative. It must sit on an element
+   that is aria-hidden and pointer-events:none, so none of it
+   can ever intercept a click or reach a screen reader.
+   ============================================================ */
+
+:root {
+  /* heavier stock for structural chrome (sidebar, rails) */
+  --board-1: oklch(0.806 0.038 78);
+  --board-2: oklch(0.742 0.045 74);
+  --board-edge: oklch(0.62 0.048 68);
+  /* per-role ink, set by the .role-* classes below */
+  --role-ink: var(--kraft);
+}
+
+.role-customer { --role-ink: var(--ink-blue); }
+.role-seller   { --role-ink: var(--ink-green); }
+.role-admin    { --role-ink: var(--ink-red); }
+
+@theme inline {
+  --color-board-1: var(--board-1);
+  --color-board-2: var(--board-2);
+  --color-board-edge: var(--board-edge);
+  --color-role-ink: var(--role-ink);
+}
+
+/* ---------- composite wear (performance) ---------- */
+
+/*
+ * The whole wear stack — grain, cracks, foxing, smudge, edge grime —
+ * baked into ONE element for surfaces that repeat many times on a page.
+ *
+ * The individual utilities below are for one-off surfaces (the shell,
+ * the sidebar, a header). Do not stack six of them on a card that
+ * renders twenty times: each `mix-blend-mode` layer makes the compositor
+ * re-read what is behind it, and that cost multiplies by every card on
+ * screen. One multiply pass here does the same job for a fraction of it.
+ */
+@utility aged-sheet {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.42;
+  background-image:
+    /* foxing spots */
+    radial-gradient(circle at 14% 20%, oklch(0.63 0.06 62 / 0.28), transparent 6%),
+    radial-gradient(circle at 82% 12%, oklch(0.62 0.07 58 / 0.24), transparent 5%),
+    radial-gradient(circle at 36% 78%, oklch(0.63 0.06 60 / 0.26), transparent 5%),
+    radial-gradient(circle at 90% 70%, oklch(0.62 0.06 64 / 0.22), transparent 5%),
+    /* thumbed edges */
+    linear-gradient(to right, oklch(0.6 0.05 62 / 0.22), transparent 6%, transparent 94%, oklch(0.6 0.05 62 / 0.22)),
+    linear-gradient(to bottom, oklch(0.6 0.05 62 / 0.18), transparent 5%, transparent 95%, oklch(0.6 0.05 62 / 0.22)),
+    /* grain + hairline cracks, in a single turbulence pass */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='ag'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.02 0.06' numOctaves='4' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 0.22 0 0 0 0 0.19 0 0 0 0 0.16 6 -6 0 0 -1.7'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23ag)'/%3E%3C/svg%3E");
+  background-size:
+    100% 100%, 100% 100%, 100% 100%, 100% 100%,
+    100% 100%, 100% 100%,
+    300px 300px;
+}
+
+/*
+ * The same idea one step richer, for panels and page headers. These
+ * repeat a handful of times per page rather than twenty, so they can
+ * afford a second pass — a damp bloom and a crease — but still not the
+ * ten separate blended layers this replaced.
+ */
+@utility aged-panel {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  background-image:
+    /* damp tide line, bottom left */
+    radial-gradient(52% 42% at 14% 84%, transparent 62%, oklch(0.78 0.05 74 / 0.4) 70%, transparent 78%),
+    /* foxing */
+    radial-gradient(circle at 12% 18%, oklch(0.62 0.07 62 / 0.3), transparent 6%),
+    radial-gradient(circle at 76% 10%, oklch(0.61 0.07 58 / 0.26), transparent 5%),
+    radial-gradient(circle at 88% 46%, oklch(0.63 0.06 64 / 0.24), transparent 5%),
+    radial-gradient(circle at 32% 72%, oklch(0.62 0.07 60 / 0.28), transparent 5%),
+    radial-gradient(circle at 58% 90%, oklch(0.6 0.07 56 / 0.22), transparent 6%),
+    /* a pressed fold down the sheet */
+    linear-gradient(to right, transparent 32.6%, oklch(0.6 0.03 74 / 0.14) 33.2%, transparent 34%),
+    /* thumbed edges */
+    linear-gradient(to right, oklch(0.6 0.05 62 / 0.24), transparent 5%, transparent 95%, oklch(0.6 0.05 62 / 0.24)),
+    linear-gradient(to bottom, oklch(0.6 0.05 62 / 0.2), transparent 4%, transparent 96%, oklch(0.6 0.05 62 / 0.24)),
+    /* grain + cracks in one turbulence pass */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='340'%3E%3Cfilter id='ap'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.018 0.055' numOctaves='4' seed='17'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.17 0 0 0 0 0.15 6 -6 0 0 -1.7'/%3E%3C/filter%3E%3Crect width='340' height='340' filter='url(%23ap)'/%3E%3C/svg%3E");
+  background-size:
+    100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%,
+    100% 100%, 100% 100%, 100% 100%,
+    340px 340px;
+}
+
+/*
+ * The full-height version, for the shell and the sidebar.
+ *
+ * These render once each but cover the whole viewport, and a blended
+ * layer costs in proportion to the area it paints — eleven of them over
+ * a full-height board was the single most expensive thing on the page.
+ * One pass, one backdrop read.
+ */
+@utility aged-board {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  background-image:
+    /* damp bloom + tide, low left */
+    radial-gradient(46% 30% at 12% 86%, transparent 60%, oklch(0.76 0.05 74 / 0.42) 69%, transparent 78%),
+    /* sun-scorched top edge */
+    linear-gradient(to top right, oklch(0.82 0.06 72 / 0.34), transparent 26%),
+    /* foxing */
+    radial-gradient(circle at 16% 14%, oklch(0.62 0.07 62 / 0.28), transparent 5%),
+    radial-gradient(circle at 78% 30%, oklch(0.61 0.07 58 / 0.24), transparent 4%),
+    radial-gradient(circle at 30% 58%, oklch(0.62 0.07 60 / 0.26), transparent 4%),
+    radial-gradient(circle at 84% 78%, oklch(0.6 0.07 56 / 0.22), transparent 5%),
+    /* single pressed crease */
+    linear-gradient(to right, transparent 61.4%, oklch(0.6 0.03 74 / 0.15) 62.2%, transparent 63%),
+    /* thumbed edges */
+    linear-gradient(to right, oklch(0.58 0.05 62 / 0.26), transparent 5%, transparent 95%, oklch(0.58 0.05 62 / 0.26)),
+    linear-gradient(to bottom, oklch(0.58 0.05 62 / 0.22), transparent 3%, transparent 97%, oklch(0.58 0.05 62 / 0.26)),
+    /* grain + cracks in one turbulence pass */
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='360' height='360'%3E%3Cfilter id='ab'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.016 0.05' numOctaves='4' seed='23'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.17 0 0 0 0 0.15 6 -6 0 0 -1.7'/%3E%3C/filter%3E%3Crect width='360' height='360' filter='url(%23ab)'/%3E%3C/svg%3E");
+  background-size:
+    100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%,
+    100% 100%, 100% 100%, 100% 100%,
+    360px 360px;
+}
+
+/* ---------- cracks ---------- */
+
+/* Fine cracked-glaze filaments. Thresholded turbulence reads as
+   hairline cracks rather than the soft fibre of paper-grain. */
+@utility crack-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.28;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='420'%3E%3Cfilter id='cr'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.016 0.052' numOctaves='5' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 0.17 0 0 0 0 0.15 0 0 0 0 0.13 7 -7 0 0 -1.9'/%3E%3C/filter%3E%3Crect width='420' height='420' filter='url(%23cr)'/%3E%3C/svg%3E");
+  background-size: 420px 420px;
+}
+
+/* Long splits running with the grain.
+ *
+ * The frequency is deliberately lopsided — slow across, fast down — so
+ * the threshold carves out long thin filaments. An evenly low frequency
+ * here produces broad dark clouds instead of cracks, which is exactly
+ * the smudge this replaced. The high gain keeps the edge sharp. */
+@utility crack-deep {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='560' height='560'%3E%3Cfilter id='cd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.006 0.115' numOctaves='2' seed='29'/%3E%3CfeColorMatrix values='0 0 0 0 0.2 0 0 0 0 0.17 0 0 0 0 0.14 15 -15 0 0 -5.2'/%3E%3C/filter%3E%3Crect width='560' height='560' filter='url(%23cd)'/%3E%3C/svg%3E");
+  background-size: 560px 560px;
+}
+
+/* ---------- wrinkles + creases ---------- */
+
+/* Deep crumple relief — low-frequency lighting, reads as a sheet
+   that was balled up and flattened out again. */
+@utility wrinkle-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.3;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.005 0.009' numOctaves='3' seed='17'/%3E%3CfeDiffuseLighting lighting-color='%23fff' surfaceScale='3.4'%3E%3CfeDistantLight azimuth='128' elevation='52'/%3E%3C/feDiffuseLighting%3E%3C/filter%3E%3Crect width='500' height='500' filter='url(%23w)'/%3E%3C/svg%3E");
+  background-size: 500px 500px;
+}
+
+/* ---------- age + wear ---------- */
+
+/* Foxing — the rust-brown spots old paper grows in storage. */
+@utility foxing {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.35;
+  background-image:
+    radial-gradient(circle at 12% 18%, oklch(0.6 0.07 62 / 0.3), transparent 7%),
+    radial-gradient(circle at 74% 9%, oklch(0.58 0.08 58 / 0.26), transparent 5%),
+    radial-gradient(circle at 88% 44%, oklch(0.62 0.06 64 / 0.24), transparent 6%),
+    radial-gradient(circle at 33% 71%, oklch(0.6 0.07 60 / 0.28), transparent 5%),
+    radial-gradient(circle at 58% 88%, oklch(0.57 0.08 56 / 0.22), transparent 7%),
+    radial-gradient(circle at 5% 57%, oklch(0.61 0.06 66 / 0.26), transparent 4%),
+    radial-gradient(circle at 46% 34%, oklch(0.63 0.05 68 / 0.18), transparent 4%),
+    radial-gradient(circle at 92% 76%, oklch(0.59 0.07 60 / 0.24), transparent 5%);
+}
+
+/* Thumbed, darkened edges — grime where hands have held the sheet. */
+@utility edge-wear {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  background-image:
+    linear-gradient(to right, oklch(0.55 0.05 62 / 0.3), transparent 5%, transparent 95%, oklch(0.55 0.05 62 / 0.3)),
+    linear-gradient(to bottom, oklch(0.55 0.05 62 / 0.26), transparent 4%, transparent 96%, oklch(0.55 0.05 62 / 0.3));
+}
+
+/* ---------- structural chrome ---------- */
+
+/* Heavier kraft board used for the sidebar and rails. */
+@utility board-kraft {
+  background-color: var(--board-1);
+  background-image:
+    linear-gradient(104deg, oklch(1 0 0 / 0.34), transparent 38%),
+    linear-gradient(292deg, oklch(0.45 0.05 62 / 0.2), transparent 44%);
+  border-color: var(--board-edge);
+}
+
+/* Punched binder holes running down a rail. */
+@utility punch-holes {
+  background-image: radial-gradient(
+    circle,
+    oklch(0.34 0.03 62 / 0.5) 0 42%,
+    oklch(1 0 0 / 0.32) 46%,
+    transparent 52%
+  );
+  background-size: 100% 138px;
+  background-repeat: repeat-y;
+  background-position: center 52px;
+}
+
+/* Ragged right edge for the sidebar — torn lengthwise, not across. */
+@utility torn-right {
+  clip-path: polygon(
+    0% 0%, 99.2% 0%, 98.4% 4%, 99.5% 8%, 98.2% 13%, 99.4% 18%, 98.5% 23%,
+    99.6% 28%, 98.3% 33%, 99.3% 38%, 98.4% 43%, 99.5% 48%, 98.2% 53%,
+    99.4% 58%, 98.6% 63%, 99.5% 68%, 98.3% 73%, 99.4% 78%, 98.4% 83%,
+    99.6% 88%, 98.5% 93%, 99.2% 97%, 98.8% 100%, 0% 100%
+  );
+}
+
+/* Washi tape strip. Rotate it at the call site. */
+@utility tape-strip {
+  background-image:
+    linear-gradient(102deg, oklch(0.9 0.05 92 / 0.86), oklch(0.86 0.06 86 / 0.78)),
+    repeating-linear-gradient(90deg, transparent 0 3px, oklch(0.7 0.04 78 / 0.14) 3px 4px);
+  border-left: 1px dashed oklch(0.68 0.04 76 / 0.5);
+  border-right: 1px dashed oklch(0.68 0.04 76 / 0.5);
+  box-shadow: 0 1px 2px oklch(0.3 0.03 70 / 0.18);
+}
+
+/* ---------- decorative marks ---------- */
+
+/* Faded rubber-stamp impression pressed straight onto the paper —
+   patchy ink, no plate. Used by the scattered decorative stamps. */
+@utility stamp-impression {
+  mix-blend-mode: multiply;
+  /* Kept deliberately faint: these sit behind body copy, so the
+     impression has to read as an old mark, never as foreground ink. */
+  opacity: 0.18;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 0 0 0 -0.26'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23m)'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' seed='5'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.4 0 0 0 -0.26'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23m)'/%3E%3C/svg%3E");
+  -webkit-mask-size: 200px 200px;
+  mask-size: 200px 200px;
+}
+
+/* Pressed botanicals sit desaturated and translucent, as if the
+   colour has leached into the page over decades. */
+@utility pressed-specimen {
+  mix-blend-mode: multiply;
+  filter: saturate(0.45) contrast(0.85);
+  opacity: 0.32;
+}
+
+/* Rusted pin / thumbtack head. */
+@utility rust-pin {
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 34% 30%, oklch(0.72 0.09 52 / 0.95), oklch(0.46 0.1 44) 68%),
+    oklch(0.48 0.1 44);
+  box-shadow:
+    inset 0 1px 1px oklch(1 0 0 / 0.4),
+    0 2px 3px oklch(0.3 0.03 70 / 0.4);
+}
+
+@keyframes drift-in {
+  from { opacity: 0; transform: translateX(-8px) rotate(var(--tilt, 0deg)); }
+  to   { opacity: 1; transform: translateX(0) rotate(var(--tilt, 0deg)); }
+}
+@utility animate-drift-in { animation: drift-in 260ms cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+
+/* ---------- cork pinboard ---------- */
+
+/* Vintage cork: warm tan ground with irregular granule flecks.
+   The paper sheets sit pinned on top of this. */
+@utility cork-board {
+  background-color: oklch(0.66 0.072 64);
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='ck'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.28 0.34' numOctaves='4' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.32 0 0 0 0 0.22 0 0 0 0 0.11 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23ck)'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='ck2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='3' seed='9'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.06 0 0 0 0 0.02 0 0 0 0.35 0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23ck2)'/%3E%3C/svg%3E"),
+    radial-gradient(120% 90% at 50% 30%, oklch(1 0 0 / 0.1), transparent 60%);
+  background-size: 300px 300px, 300px 300px, 100% 100%;
+}
+
+/* Cork that has crumbled: bare patches worn through to a paler
+   under-layer, and old pin holes left by years of rearranging. */
+@utility cork-worn {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(38px 26px at 12% 22%, oklch(0.78 0.05 68 / 0.5), transparent 68%),
+    radial-gradient(30px 40px at 88% 58%, oklch(0.76 0.055 66 / 0.45), transparent 70%),
+    radial-gradient(46px 22px at 62% 88%, oklch(0.79 0.045 70 / 0.4), transparent 72%),
+    radial-gradient(24px 30px at 34% 62%, oklch(0.75 0.05 64 / 0.34), transparent 70%);
+}
+
+/* Old pin holes, scattered rather than ruled. */
+@utility cork-pinholes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+  background-image:
+    radial-gradient(2px 2px at 8% 14%, oklch(0.4 0.04 56 / 0.55), transparent 70%),
+    radial-gradient(2px 2px at 27% 71%, oklch(0.4 0.04 56 / 0.5), transparent 70%),
+    radial-gradient(1.6px 1.6px at 46% 23%, oklch(0.4 0.04 56 / 0.45), transparent 70%),
+    radial-gradient(2px 2px at 63% 52%, oklch(0.4 0.04 56 / 0.5), transparent 70%),
+    radial-gradient(1.8px 1.8px at 81% 18%, oklch(0.4 0.04 56 / 0.45), transparent 70%),
+    radial-gradient(2px 2px at 92% 79%, oklch(0.4 0.04 56 / 0.5), transparent 70%),
+    radial-gradient(1.6px 1.6px at 17% 44%, oklch(0.4 0.04 56 / 0.4), transparent 70%),
+    radial-gradient(1.8px 1.8px at 54% 91%, oklch(0.4 0.04 56 / 0.45), transparent 70%);
+  background-size:
+    520px 380px, 520px 380px, 520px 380px, 520px 380px,
+    520px 380px, 520px 380px, 520px 380px, 520px 380px;
+}
+
+/* A torn bite out of the board's edge, so the cork does not read as a
+   perfect rectangle. Sits over the frame at one corner. */
+@utility cork-torn-corner {
+  clip-path: polygon(
+    0 0, 100% 0, 100% 62%, 96% 66%, 99% 71%, 94% 76%, 98% 82%,
+    93% 87%, 97% 93%, 91% 97%, 94% 100%, 0 100%
+  );
+}
+
+/* The timber frame around the board. */
+@utility cork-frame {
+  border: 10px solid oklch(0.42 0.05 56);
+  border-image: linear-gradient(
+      142deg,
+      oklch(0.5 0.055 58),
+      oklch(0.34 0.045 52) 32%,
+      oklch(0.48 0.05 56) 58%,
+      oklch(0.3 0.04 50)
+    )
+    1;
+  box-shadow:
+    inset 0 0 0 1px oklch(0.25 0.03 50 / 0.5),
+    inset 0 3px 12px oklch(0.25 0.03 50 / 0.35),
+    0 6px 18px -6px oklch(0.25 0.03 70 / 0.45);
+}
+
+/* ---------- cobwebs + spider ---------- */
+
+/* The spider abseils down its thread and climbs back up. The thread
+   itself is drawn extending upward out of the clipping box, so it stays
+   attached however far the spider drops — only one transform animates. */
+@keyframes spider-abseil {
+  0%   { transform: translate3d(0, 0, 0); }
+  8%   { transform: translate3d(0, 4%, 0); }
+  46%  { transform: translate3d(-3px, var(--drop, 110px), 0); }
+  54%  { transform: translate3d(3px, var(--drop, 110px), 0); }
+  92%  { transform: translate3d(0, 6%, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+@utility animate-spider-abseil {
+  animation: spider-abseil var(--abseil-duration, 22s) cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  animation-delay: var(--abseil-delay, 0s);
+}
+
+/* A resting spider just breathes a little on the spot. */
+@keyframes spider-twitch {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  40%      { transform: rotate(2.5deg) translateY(1px); }
+  70%      { transform: rotate(-2deg) translateY(-1px); }
+}
+@utility animate-spider-twitch {
+  animation: spider-twitch var(--twitch-duration, 7s) ease-in-out infinite;
+  animation-delay: var(--twitch-delay, 0s);
+}
+
+/* ============================================================
+   LIGHT-SIDE WEAR
+   Everything below tints warm and pale on purpose. Age is added
+   by bleaching and staining the stock, never by darkening it —
+   these layers sit under body copy and must not reduce contrast.
+   ============================================================ */
+
+/* Thumbprints — pale warm smudges where the sheet was handled. */
+@utility thumb-smudge {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.16;
+  background-image:
+    radial-gradient(10px 13px at 14% 26%, oklch(0.72 0.03 70 / 0.7), transparent 72%),
+    radial-gradient(9px 12px at 84% 66%, oklch(0.74 0.03 72 / 0.6), transparent 72%),
+    radial-gradient(11px 9px at 52% 92%, oklch(0.73 0.03 68 / 0.55), transparent 74%);
+}
+
+/* Rust halo bleeding out of a pin or staple. */
+@utility rust-halo {
+  background-image: radial-gradient(
+    circle,
+    oklch(0.68 0.09 54 / 0.5) 0 26%,
+    oklch(0.76 0.07 58 / 0.24) 48%,
+    transparent 72%
+  );
+}
+
+/* ---------- board furniture ---------- */
+
+/* Brass pushpin, lit from the upper left. */
+@utility pushpin {
+  border-radius: 9999px;
+  background:
+    radial-gradient(circle at 33% 28%, oklch(0.94 0.06 92 / 0.95), oklch(0.7 0.11 74) 62%),
+    oklch(0.68 0.11 72);
+  box-shadow:
+    inset 0 1px 1px oklch(1 0 0 / 0.6),
+    inset 0 -1px 2px oklch(0.45 0.08 60 / 0.45),
+    0 2px 3px oklch(0.45 0.04 70 / 0.32);
+}
+
+/* Wire staple pressed flat into the sheet. */
+@utility staple {
+  background: linear-gradient(
+    100deg,
+    oklch(0.86 0.008 250),
+    oklch(0.7 0.012 250) 45%,
+    oklch(0.9 0.006 250)
+  );
+  box-shadow:
+    0 1px 1px oklch(0.45 0.04 70 / 0.3),
+    inset 0 1px 0 oklch(1 0 0 / 0.55);
+}
+
+/* Card-index divider tab poking out of the edge of a panel. */
+@utility divider-tab {
+  background-image: linear-gradient(170deg, oklch(0.93 0.035 88), oklch(0.87 0.045 84));
+  border: 1px solid var(--paper-edge);
+  border-bottom-color: transparent;
+  border-radius: 3px 3px 0 0;
+  box-shadow: 0 -1px 2px oklch(0.45 0.04 70 / 0.14);
+}
+
+/* ---------- atmosphere ---------- */
+
+/* A warm shaft of daylight falling across the board. Screen blend, so
+   it only ever lifts what is underneath it. */
+@utility light-shaft {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background-image: linear-gradient(
+    108deg,
+    transparent 6%,
+    oklch(1 0.03 95 / 0.16) 17%,
+    oklch(1 0.04 95 / 0.3) 25%,
+    oklch(1 0.03 95 / 0.12) 34%,
+    transparent 46%
+  );
+}
+
+/* Dust hanging in that shaft: two fields of pale specks drifting at
+   different rates so the motion never looks like one sliding sheet. */
+@keyframes dust-drift {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 140px -420px, -110px -330px; }
+}
+@utility dust-motes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(1.6px 1.6px at 18% 12%, oklch(1 0 0 / 0.85), transparent 60%),
+    radial-gradient(1.1px 1.1px at 62% 44%, oklch(1 0 0 / 0.7), transparent 60%);
+  background-size: 260px 380px, 190px 300px;
+  animation: dust-drift 46s linear infinite;
+}
+
+/* The lamp is old; the light it throws breathes a little. */
+@keyframes lamp-breathe {
+  0%, 100% { opacity: 0.55; }
+  40%      { opacity: 0.78; }
+  62%      { opacity: 0.62; }
+}
+@utility animate-lamp-breathe {
+  animation: lamp-breathe var(--lamp-duration, 11s) ease-in-out infinite;
+}
+
+/* A pale moth crossing the board, wandering as it goes. */
+@keyframes moth-cross {
+  0%   { transform: translate3d(-8%, 26vh, 0) rotate(6deg); opacity: 0; }
+  6%   { opacity: 0.9; }
+  22%  { transform: translate3d(24%, 9vh, 0) rotate(-9deg); }
+  44%  { transform: translate3d(48%, 30vh, 0) rotate(7deg); }
+  66%  { transform: translate3d(72%, 12vh, 0) rotate(-6deg); }
+  92%  { opacity: 0.85; }
+  100% { transform: translate3d(112%, 24vh, 0) rotate(4deg); opacity: 0; }
+}
+@utility animate-moth-cross {
+  animation: moth-cross var(--moth-duration, 34s) linear infinite;
+  animation-delay: var(--moth-delay, 6s);
+}
+
+@keyframes moth-flutter {
+  0%, 100% { transform: scaleX(1); }
+  50%      { transform: scaleX(0.42); }
+}
+@utility animate-moth-flutter {
+  animation: moth-flutter 260ms ease-in-out infinite;
+}
+
+/* ---------- press + handwriting ---------- */
+
+/* Letterpress: the die pushed the fibre down, so there is a bright
+   lip below the mark and a soft warm shadow above it. */
+@utility letterpress {
+  text-shadow:
+    0 1px 0 oklch(1 0 0 / 0.65),
+    0 -1px 0 oklch(0.6 0.04 70 / 0.22);
+}
+
+/* Ink that has crept a hair into the paper fibre. */
+@utility ink-bleed {
+  text-shadow:
+    0 0 1px currentColor,
+    0 0 3px color-mix(in oklch, currentColor 22%, transparent);
+}
+
+/* ============================================================
+   THE HAUNTED ARCHIVE
+   Darker than the wear above, on purpose. These are stains and
+   marks, not atmosphere — but they still sit behind body copy,
+   so the darkest of them stay under ~0.45 alpha and are pushed
+   toward the margins by the components that place them.
+   ============================================================ */
+
+/* Old blood soaked into the stock — brown at the rim where it dried
+   first, redder at the centre where it pooled. */
+@utility blood-soak {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.45;
+  background-image:
+    radial-gradient(44% 38% at 16% 74%, oklch(0.32 0.14 26 / 0.72), oklch(0.4 0.13 32 / 0.34) 54%, oklch(0.5 0.09 40 / 0.14) 76%, transparent 86%),
+    radial-gradient(26% 22% at 82% 22%, oklch(0.34 0.14 27 / 0.6), oklch(0.44 0.11 34 / 0.24) 60%, transparent 82%);
+}
+
+/* Cast-off droplets — the arc a wet hand throws. */
+@utility blood-spatter {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.5;
+  background-image:
+    radial-gradient(3.5px 4.5px at 22% 18%, oklch(0.3 0.15 26 / 0.85), transparent 68%),
+    radial-gradient(2.5px 3px at 29% 26%, oklch(0.31 0.15 27 / 0.8), transparent 68%),
+    radial-gradient(5px 3.5px at 37% 15%, oklch(0.3 0.15 26 / 0.75), transparent 70%),
+    radial-gradient(2px 2.5px at 44% 31%, oklch(0.32 0.14 27 / 0.7), transparent 68%),
+    radial-gradient(3px 4px at 68% 71%, oklch(0.3 0.15 26 / 0.8), transparent 68%),
+    radial-gradient(2px 2px at 76% 79%, oklch(0.31 0.14 27 / 0.7), transparent 70%),
+    radial-gradient(4px 2.5px at 85% 66%, oklch(0.3 0.15 26 / 0.72), transparent 70%);
+}
+
+/* A weight of shadow closing in from the edges of the board. */
+@utility dread-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    120% 100% at 50% 42%,
+    transparent 38%,
+    oklch(0.28 0.03 52 / 0.28) 74%,
+    oklch(0.2 0.03 48 / 0.55) 100%
+  );
+}
+
+/* Damp gone black in the corners — mildew, not foxing. */
+@utility black-damp {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+  opacity: 0.4;
+  background-image:
+    radial-gradient(30% 26% at 2% 4%, oklch(0.32 0.03 140 / 0.62), oklch(0.45 0.04 130 / 0.22) 58%, transparent 80%),
+    radial-gradient(26% 30% at 99% 96%, oklch(0.3 0.035 138 / 0.58), oklch(0.44 0.04 132 / 0.2) 60%, transparent 82%);
+}
+
+/* ---------- things that move ---------- */
+
+/* A spider that bolts across the board and is gone. It is still for
+   most of the cycle, which is what makes the dash register. */
+@keyframes scuttle {
+  0%, 62%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+  63%       { opacity: 0.85; }
+  70%       { transform: translate3d(28vw, -2vh, 0) rotate(-4deg); }
+  77%       { transform: translate3d(52vw, 3vh, 0) rotate(5deg); }
+  84%       { transform: translate3d(78vw, -1vh, 0) rotate(-3deg); opacity: 0.85; }
+  90%       { transform: translate3d(102vw, 2vh, 0) rotate(2deg); opacity: 0; }
+  100%      { transform: translate3d(102vw, 2vh, 0); opacity: 0; }
+}
+@utility animate-scuttle {
+  animation: scuttle var(--scuttle-duration, 26s) cubic-bezier(0.3, 0.1, 0.5, 1) infinite;
+  animation-delay: var(--scuttle-delay, 0s);
+}
+
+/* Legs going while it runs. */
+@keyframes skitter {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(0.82) translateY(1px); }
+}
+@utility animate-skitter {
+  animation: skitter 120ms ease-in-out infinite;
+}
+
+/* Something low and quick along the skirting. */
+@keyframes rat-dart {
+  0%, 70%  { transform: translate3d(-14%, 0, 0) scaleX(1); opacity: 0; }
+  72%      { opacity: 0.7; }
+  80%      { transform: translate3d(42%, 0, 0) scaleX(1); }
+  86%      { transform: translate3d(74%, 0, 0) scaleX(1); opacity: 0.7; }
+  93%      { transform: translate3d(116%, 0, 0) scaleX(1); opacity: 0; }
+  100%     { transform: translate3d(116%, 0, 0); opacity: 0; }
+}
+@utility animate-rat-dart {
+  animation: rat-dart var(--rat-duration, 38s) cubic-bezier(0.35, 0, 0.5, 1) infinite;
+  animation-delay: var(--rat-delay, 0s);
+}
+
+/* Flies working a slow circuit over the same spot. */
+@keyframes fly-orbit {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(26px, -14px); }
+  50%  { transform: translate(8px, -30px); }
+  75%  { transform: translate(-20px, -12px); }
+  100% { transform: translate(0, 0); }
+}
+@utility animate-fly-orbit {
+  animation: fly-orbit var(--fly-duration, 7s) linear infinite;
+  animation-delay: var(--fly-delay, 0s);
+}
+
+/* The lamp guts: mostly steady, then it nearly goes out. */
+@keyframes gutter {
+  0%, 55%, 100% { opacity: 0; }
+  57%           { opacity: 0.5; }
+  59%           { opacity: 0.12; }
+  61%           { opacity: 0.62; }
+  63%           { opacity: 0.2; }
+  66%           { opacity: 0.44; }
+  70%           { opacity: 0; }
+}
+@utility animate-gutter {
+  animation: gutter var(--gutter-duration, 19s) steps(1, end) infinite;
+  animation-delay: var(--gutter-delay, 0s);
+}
+
+/* A sheet that is not quite still. */
+@keyframes breathe-sheet {
+  0%, 100% { transform: rotate(var(--tilt, 0deg)) scale(1); }
+  50%      { transform: rotate(calc(var(--tilt, 0deg) + 0.18deg)) scale(1.0035); }
+}
+@utility animate-breathe-sheet {
+  animation: breathe-sheet var(--breathe-duration, 9s) ease-in-out infinite;
+  animation-delay: var(--breathe-delay, 0s);
+}
