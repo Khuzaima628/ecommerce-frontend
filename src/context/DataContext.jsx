@@ -9,7 +9,7 @@ import {
   mockWishlist,
 } from "../data/mockData.js";
 import { useToast } from "./ToastContext.jsx";
-
+   
 const DataContext = createContext(null);
 
 let idCounter = 100;
