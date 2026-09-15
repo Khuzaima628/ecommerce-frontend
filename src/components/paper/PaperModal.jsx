@@ -69,21 +69,23 @@ export default function PaperModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-4 py-10"
+      className="fixed inset-0 z-50 flex items-start justify-center"
       onKeyDown={onKeyDown}
     >
-      {/* corkboard backdrop */}
+      {/* corkboard backdrop — fixed so it never scrolls */}
       <button
         type="button"
         aria-label="Close dialog"
         onClick={onClose}
-        className="absolute inset-0 cursor-default bg-desk/70 backdrop-blur-[1px]"
+        className="fixed inset-0 cursor-default bg-desk/70 backdrop-blur-[1px]"
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E\")",
         }}
       />
 
+      {/* scrollable column — only this area scrolls, backdrop stays put */}
+      <div className="relative z-10 w-full overflow-y-auto max-h-screen px-4 py-10 flex justify-center">
       <div
         ref={sheetRef}
         role="dialog"
@@ -131,6 +133,7 @@ export default function PaperModal({
             </footer>
           )}
         </div>
+      </div>
       </div>
     </div>,
     document.body,
