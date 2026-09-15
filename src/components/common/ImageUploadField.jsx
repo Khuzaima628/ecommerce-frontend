@@ -1,34 +1,37 @@
 import { useRef, useState } from "react";
-import { uploadFile } from "../../lib/mediaApi.js";
 import PaperButton from "../paper/PaperButton.jsx";
 
+const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"];
+const MAX_SIZE = 5 * 1024 * 1024;
+
 /**
- * Presigned-URL upload per auth_company_product.md: ask the backend for
- * {uploadUrl, fileUrl}, PUT the raw bytes to uploadUrl, then keep fileUrl.
+ * Stores the selected file locally and calls onChange(file, previewUrl).
+ * No API call is made here — upload happens on form submit.
  */
-export default function ImageUploadField({ label, folder, value, onChange, hint }) {
+export default function ImageUploadField({ label, value, previewUrl, onChange, hint }) {
   const inputRef = useRef(null);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
 
   const pick = () => inputRef.current?.click();
 
-  const handleFile = async (event) => {
+  const handleFile = (event) => {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-
-    setError("");
-    setUploading(true);
-    try {
-      const fileUrl = await uploadFile(file, folder);
-      onChange(fileUrl);
-    } catch (err) {
-      setError(err.message ?? "Upload failed. Please try again.");
-    } finally {
-      setUploading(false);
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      setError("Only PNG, JPEG or WEBP images are allowed.");
+      return;
     }
+    if (file.size > MAX_SIZE) {
+      setError("File must be 5 MB or smaller.");
+      return;
+    }
+    setError("");
+    const preview = URL.createObjectURL(file);
+    onChange(file, preview);
   };
+
+  const displaySrc = previewUrl || (typeof value === "string" ? value : null);
 
   return (
     <div>
@@ -36,9 +39,9 @@ export default function ImageUploadField({ label, folder, value, onChange, hint 
         {label}
       </p>
       <div className="flex items-center gap-3">
-        {value && (
+        {displaySrc && (
           <img
-            src={value}
+            src={displaySrc}
             alt=""
             className="h-14 w-14 shrink-0 border border-paper-edge object-cover"
           />
@@ -50,8 +53,8 @@ export default function ImageUploadField({ label, folder, value, onChange, hint 
           className="hidden"
           onChange={handleFile}
         />
-        <PaperButton type="button" size="sm" disabled={uploading} onClick={pick}>
-          {uploading ? "Uploading…" : value ? "Replace image" : "Upload image"}
+        <PaperButton type="button" size="sm" onClick={pick}>
+          {displaySrc ? "Replace image" : "Choose image"}
         </PaperButton>
       </div>
       {hint && !error && <p className="mt-1 text-xs text-ink-faint">{hint}</p>}

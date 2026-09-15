@@ -8,6 +8,7 @@ import PaperInput, {
 import PaperSpinner from "../../components/paper/PaperSpinner.jsx";
 import ImageUploadField from "../../components/common/ImageUploadField.jsx";
 import { ApiError } from "../../lib/api.js";
+import { uploadFile } from "../../lib/mediaApi.js";
 
 // Fixed enums straight from auth_company_product.md — the backend rejects anything else.
 export const CATEGORIES = ["stationary", "books", "art_supplies", "home_goods", "apparel"];
@@ -21,13 +22,17 @@ export const TAG_POOL = [
   "gift_wrapped",
 ];
 
+// Each image slot: { file: File|null, previewUrl: string, existingUrl: string }
+// file+previewUrl = newly selected local file; existingUrl = already-uploaded URL (edit mode)
+const blankSlot = () => ({ file: null, previewUrl: "", existingUrl: "" });
+
 const blank = {
   productName: "",
   description: "",
   price: "",
   stock: "",
   category: CATEGORIES[0],
-  images: [""],
+  imageSlots: [blankSlot()],
   sku: "",
   tags: [],
   specifications: [
@@ -60,7 +65,9 @@ export default function ProductFormModal({ open, product, onClose, onSubmit }) {
             price: String(product.price),
             stock: String(product.stock),
             category: product.category,
-            images: product.images?.length ? product.images : [""],
+            imageSlots: product.images?.length
+              ? product.images.map((url) => ({ file: null, previewUrl: "", existingUrl: url }))
+              : [blankSlot()],
             sku: product.sku ?? "",
             tags: product.tags ?? [],
             specifications: padSpecs(product.specifications),
@@ -86,14 +93,19 @@ export default function ProductFormModal({ open, product, onClose, onSubmit }) {
       tags: f.tags.includes(tag) ? f.tags.filter((t) => t !== tag) : [...f.tags, tag],
     }));
 
-  const setImage = (i) => (fileUrl) =>
-    setForm((f) => ({ ...f, images: f.images.map((img, idx) => (idx === i ? fileUrl : img)) }));
+  const setImageSlot = (i) => (file, previewUrl) =>
+    setForm((f) => ({
+      ...f,
+      imageSlots: f.imageSlots.map((slot, idx) =>
+        idx === i ? { file, previewUrl, existingUrl: "" } : slot,
+      ),
+    }));
 
   const addImageSlot = () =>
-    setForm((f) => (f.images.length >= 3 ? f : { ...f, images: [...f.images, ""] }));
+    setForm((f) => (f.imageSlots.length >= 3 ? f : { ...f, imageSlots: [...f.imageSlots, blankSlot()] }));
 
   const removeImageSlot = (i) =>
-    setForm((f) => ({ ...f, images: f.images.filter((_, idx) => idx !== i) }));
+    setForm((f) => ({ ...f, imageSlots: f.imageSlots.filter((_, idx) => idx !== i) }));
 
   const validate = () => {
     if (!form.productName.trim()) return "Give the product a name.";
@@ -101,8 +113,8 @@ export default function ProductFormModal({ open, product, onClose, onSubmit }) {
       return "Price must be a number above zero.";
     if (form.stock === "" || Number.isNaN(Number(form.stock)) || Number(form.stock) < 0)
       return "Stock must be zero or more.";
-    const images = form.images.filter(Boolean);
-    if (images.length < 1 || images.length > 3) return "Upload between 1 and 3 images.";
+    const filledSlots = form.imageSlots.filter((s) => s.file || s.existingUrl);
+    if (filledSlots.length < 1 || filledSlots.length > 3) return "Upload between 1 and 3 images.";
     if (
       form.specifications.some(
         (sp) => (sp.label.trim() && !sp.value.trim()) || (!sp.label.trim() && sp.value.trim()),
@@ -122,12 +134,18 @@ export default function ProductFormModal({ open, product, onClose, onSubmit }) {
     setError("");
     setSaving(true);
     try {
+      // Upload only newly selected files; keep already-uploaded URLs as-is
+      const images = await Promise.all(
+        form.imageSlots
+          .filter((s) => s.file || s.existingUrl)
+          .map((s) => (s.file ? uploadFile(s.file, "product") : Promise.resolve(s.existingUrl))),
+      );
       await onSubmit({
         productName: form.productName.trim(),
         description: form.description.trim(),
         price: Number(form.price),
         stock: Number(form.stock),
-        images: form.images.filter(Boolean),
+        images,
         category: form.category,
         sku: form.sku.trim(),
         tags: form.tags,
@@ -214,10 +232,15 @@ export default function ProductFormModal({ open, product, onClose, onSubmit }) {
             Images (1–3)
           </p>
           <div className="grid gap-3 sm:grid-cols-3">
-            {form.images.map((img, i) => (
+            {form.imageSlots.map((slot, i) => (
               <div key={i} className="flex items-end gap-2">
-                <ImageUploadField label={`Image ${i + 1}`} folder="product" value={img} onChange={setImage(i)} />
-                {form.images.length > 1 && (
+                <ImageUploadField
+                  label={`Image ${i + 1}`}
+                  value={slot.existingUrl}
+                  previewUrl={slot.previewUrl}
+                  onChange={setImageSlot(i)}
+                />
+                {form.imageSlots.length > 1 && (
                   <PaperButton type="button" size="sm" variant="danger" onClick={() => removeImageSlot(i)}>
                     Remove
                   </PaperButton>
@@ -225,7 +248,7 @@ export default function ProductFormModal({ open, product, onClose, onSubmit }) {
               </div>
             ))}
           </div>
-          {form.images.length < 3 && (
+          {form.imageSlots.length < 3 && (
             <PaperButton type="button" size="sm" className="mt-2" onClick={addImageSlot}>
               + Add another image
             </PaperButton>
