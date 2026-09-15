@@ -8,6 +8,6 @@ export const cartApi = {
     apiRequest(`/cart/${productId}`, { method: "PUT", body: { quantity }, auth: true }),
 
   list: () => apiRequest("/cart", { method: "GET", auth: true }),
-
+ 
   remove: (productId) => apiRequest(`/cart/${productId}`, { method: "DELETE", auth: true }),
 };
