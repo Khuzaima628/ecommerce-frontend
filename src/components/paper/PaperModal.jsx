@@ -85,7 +85,7 @@ export default function PaperModal({
       />
 
       {/* scrollable column — only this area scrolls, backdrop stays put */}
-      <div className="relative z-10 w-full overflow-y-auto max-h-screen px-4 py-10 flex justify-center">
+      <div className="relative z-10 w-full h-screen overflow-y-auto px-4 py-10 flex justify-center items-start">
       <div
         ref={sheetRef}
         role="dialog"
