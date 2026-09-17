@@ -47,7 +47,6 @@ export const NAV = {
     { to: "/profile", label: "Profile", icon: UserRound },
   ],
   admin: [
-    { to: "/admin/dashboard", label: "Dashboard", icon: LayoutGrid },
     { to: "/admin/users", label: "Users", icon: Users },
     { to: "/admin/products", label: "Products", icon: Package },
     { to: "/admin/orders", label: "Orders", icon: ClipboardList },
