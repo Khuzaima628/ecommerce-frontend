@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { companyApi } from "../../lib/companyApi.js";
+import { uploadFile } from "../../lib/mediaApi.js";
 import { ApiError } from "../../lib/api.js";
 import PaperHeader from "../../components/paper/PaperHeader.jsx";
 import PaperPanel from "../../components/paper/PaperPanel.jsx";
@@ -29,6 +30,8 @@ export default function SellerProfilePage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState(blankForm);
+  const [logoPreview, setLogoPreview] = useState("");
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
     companyApi
@@ -43,6 +46,7 @@ export default function SellerProfilePage() {
 
   const openForm = () => {
     setError("");
+    setLogoPreview("");
     setForm(
       company
         ? {
@@ -61,9 +65,28 @@ export default function SellerProfilePage() {
     setOpen(true);
   };
 
+  const handleLogoSelect = async (file, previewUrl) => {
+    setLogoPreview(previewUrl);
+    setUploadingLogo(true);
+    setError("");
+    try {
+      const fileUrl = await uploadFile(file, "banner");
+      setForm((f) => ({ ...f, logo: fileUrl }));
+    } catch (err) {
+      setError(err.message || "Could not upload that image.");
+      setLogoPreview("");
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
   const save = async () => {
     if (!form.companyName.trim()) {
       setError("The stall needs a name.");
+      return;
+    }
+    if (uploadingLogo) {
+      setError("Wait for the logo to finish uploading first.");
       return;
     }
     setError("");
@@ -173,7 +196,7 @@ export default function SellerProfilePage() {
             <PaperButton disabled={saving} onClick={() => setOpen(false)}>
               Discard
             </PaperButton>
-            <PaperButton variant="stamp" disabled={saving} onClick={save}>
+            <PaperButton variant="stamp" disabled={saving || uploadingLogo} onClick={save}>
               {saving ? "Saving…" : "Save profile"}
             </PaperButton>
           </>
@@ -191,9 +214,10 @@ export default function SellerProfilePage() {
           <div className="sm:col-span-2">
             <ImageUploadField
               label="Logo"
-              folder="banner"
               value={form.logo}
-              onChange={(fileUrl) => setForm((f) => ({ ...f, logo: fileUrl }))}
+              previewUrl={logoPreview}
+              onChange={handleLogoSelect}
+              hint={uploadingLogo ? "Uploading…" : undefined}
             />
           </div>
           <div className="sm:col-span-2">
